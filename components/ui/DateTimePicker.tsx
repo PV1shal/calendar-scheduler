@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,74 +6,63 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 
 interface DateTimePickerProps {
-  date: Date | undefined;
   setDate: (date: Date) => void;
 }
 
-export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(date);
+export default function DateTimePicker({ setDate }: DateTimePickerProps) {
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [hour, setHour] = useState<string>('00');
   const [minute, setMinute] = useState<string>('00');
-  const [amPm, setAmPm] = useState<'AM' | 'PM'>(selectedDate && selectedDate.getHours() >= 12 ? 'PM' : 'AM');
+  const [amPm, setAmPm] = useState<'AM' | 'PM'>('AM');
+
+  // Update selected date whenever hour, minute, or am/pm changes
+  useEffect(() => {
+    if (selectedDate) {
+      const updatedDate = new Date(selectedDate);
+      let hourIn24 = parseInt(hour) % 12;
+      if (amPm === 'PM') hourIn24 += 12;
+      
+      updatedDate.setHours(hourIn24);
+      updatedDate.setMinutes(parseInt(minute));
+      setDate(updatedDate);
+    }
+  }, [hour, minute, amPm, selectedDate, setDate]);
 
   const handleHourChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '');
-
     if (value === '') {
       setHour('');
       return;
     }
 
     let numValue = parseInt(value, 10);
-
-    if (numValue > 12) {
-      numValue = 12;
-    } else if (numValue < 1) {
-      numValue = 1;
-    }
+    if (numValue > 12) numValue = 12;
+    if (numValue < 1) numValue = 0;
 
     const formattedHour = numValue.toString().padStart(2, '0');
     setHour(formattedHour);
-    updateSelectedDate(formattedHour, minute, amPm);
   };
 
   const handleMinuteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '');
-
     if (value === '') {
       setMinute('');
       return;
     }
 
     let numValue = parseInt(value, 10);
-
-    if (numValue > 59) {
-      numValue = 59;
-    } else if (numValue < 0) {
-      numValue = 0;
-    }
+    if (numValue > 59) numValue = 59;
+    if (numValue < 0) numValue = 0;
 
     const formattedMinute = numValue.toString().padStart(2, '0');
     setMinute(formattedMinute);
-    updateSelectedDate(hour, formattedMinute, amPm);
   };
 
   const handleAmPmChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newAmPm = e.target.value as 'AM' | 'PM';
     setAmPm(newAmPm);
-    updateSelectedDate(hour, minute, newAmPm);
   };
 
-  const updateSelectedDate = (newHour: string, newMinute: string, newAmPm: 'AM' | 'PM') => {
-    if (selectedDate) {
-      const updatedDate = new Date(selectedDate);
-      let hourIn24 = parseInt(newHour) % 12;
-      if (newAmPm === 'PM') hourIn24 += 12;
-      updatedDate.setHours(hourIn24);
-      updatedDate.setMinutes(parseInt(newMinute));
-      setDate(updatedDate);
-    }
-  };
 
   return (
     <Popover>
@@ -90,7 +79,7 @@ export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
 
           {/* Calendar */}
           <div className="w-full">
-            <Calendar selected={selectedDate} onSelect={setSelectedDate} />
+            <Calendar mode="single" selected={selectedDate} onSelect={setSelectedDate} />
           </div>
 
           {/* Time Inputs */}

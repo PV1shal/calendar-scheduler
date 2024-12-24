@@ -53,7 +53,7 @@ const EventModal = () => {
           Schedule Test
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="w-1/2">
         <DialogHeader>
           <DialogTitle>Schedule Detail</DialogTitle>
         </DialogHeader>
@@ -76,8 +76,9 @@ const EventModal = () => {
             </DropdownMenu>
           </div>
 
-          <div className="space-y-2 w-full">
-            <DateTimePicker date={date} setDate={setDate} />
+          <div className="space-y-2 w-full p-2 border-2 border-gray-100 rounded-lg">
+            <Label>Start Date and Time</Label>
+            <DateTimePicker setDate={setDate} />
 
             <div className="space-y-2">
               <div className="flex justify-between items-center">
