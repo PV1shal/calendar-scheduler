@@ -1,4 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
+import { v4 as uuidv4 } from "uuid";
+import { addDays } from "date-fns";
 
 const supabaseUrl = "https://oxkgqjyymfahoqoelmqn.supabase.co";
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -25,19 +27,31 @@ export const getAllEvents = async () => {
 };
 
 export const createEvent = async (event) => {
-  try {
-    const { data, error } = await supabase
-      .from("events")
-      .insert([event]); 
+  const { title, time, selectedDays } = event;
+  console.log(time, new Date(time).toISOString())
+  const groupId = uuidv4();
 
-    if (error) {
-      console.error("Error creating event:", error);
+  if (selectedDays.length === 1) {
+    try {
+      const { data, error } = await supabase.from("events").insert([
+        {
+          title,
+          time: new Date(time).toISOString(),
+          group_id: groupId,
+        },
+      ])
+      .select("id");
+
+      if (error) {
+        console.error("Error creating non-recurring event:", error);
+        return null;
+      }
+
+      console.log("Created non-recurring event:", data);
+      return data;
+    } catch (err) {
+      console.error("Unexpected error creating non-recurring event:", err);
       return null;
     }
-
-    return data;
-  } catch (err) {
-    console.error("Unexpected error creating event:", err);
-    return null;
   }
 };

@@ -14,21 +14,53 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import { Button } from "@/components/ui/button";
-
 import { Label } from "@/components/ui/label";
 import DateTimePicker from "@/components/ui/DateTimePicker";
+import { createEvent } from "@/services/SupabaseServices";
 
 const EventModal = () => {
   const [testSuite, setTestSuite] = useState("Demo Suite");
-  const [date, setDate] = useState<Date>();
+  const [date, setDate] = useState<Date | null>(null); // Use null for optional date
   const [selectedDays, setSelectedDays] = useState<string[]>(["Mon"]);
+  const [isLoading, setIsLoading] = useState(false); // Loading state
+  const [open, setOpen] = useState(false); // Modal open state
 
-  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Sat"];
+  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const handleSaveChange = async () => {
+    if (!testSuite || !date || selectedDays.length === 0) {
+      alert("Please fill in all the required fields.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    const eventData = {
+      title: testSuite,
+      time: date,
+      selectedDays: selectedDays,
+    };
+
+    try {
+      const groupId = await createEvent(eventData);
+
+      if (groupId) {
+        alert("Event created successfully!");
+        setOpen(false); // Close the modal on success
+      } else {
+        alert("Failed to create event.");
+      }
+    } catch (error) {
+      console.error("Error creating event:", error);
+      alert("An error occurred while creating the event.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="bg-[#0040FF] hover:bg-[#0040FF]/90">
           <PlusIcon className="mr-2 h-4 w-4" />
@@ -86,6 +118,7 @@ const EventModal = () => {
                         setSelectedDays([...selectedDays, day]);
                       }
                     }}
+                    disabled={isLoading}
                   >
                     {day}
                   </Button>
@@ -99,10 +132,17 @@ const EventModal = () => {
           <Button
             variant="destructive"
             className="w-1/2 text-red-500 hover:text-white border-2 bg-transparent"
+            disabled={isLoading}
           >
             Cancel Schedule
           </Button>
-          <Button className="w-1/2 bg-[#0040FF]">Save Changes</Button>
+          <Button
+            className="w-1/2 bg-[#0040FF]"
+            onClick={handleSaveChange}
+            disabled={isLoading}
+          >
+            {isLoading ? "Saving..." : "Save Changes"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

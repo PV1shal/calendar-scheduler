@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { useEffect, useState } from "react";
 import { addDays, format, startOfWeek, isSameDay } from "date-fns";
@@ -20,10 +20,10 @@ interface Event {
 }
 
 interface SupabaseEventData {
-  id: string,
-  create_at: string,
-  time: string,
-  title: string
+  id: string;
+  create_at: string;
+  time: string;
+  title: string;
 }
 
 export default function CalendarComponent() {
@@ -35,14 +35,19 @@ export default function CalendarComponent() {
     const fetchEvents = async () => {
       const fetchedEvents = await getAllEvents();
       if (fetchedEvents) {
-        const formattedEvents = fetchedEvents.map((event: SupabaseEventData) => {
-          const eventDate = new Date(event.time);
-          return {
-            title: event.title,
-            time: format(eventDate, "hh:mmaaa 'PST'"),
-            date: eventDate,
-          };
-        });
+        const formattedEvents = fetchedEvents.map(
+          (event: SupabaseEventData) => {
+            const eventDate = new Date(event.time);
+            const timezoneOffset = eventDate.getTimezoneOffset();
+            eventDate.setMinutes(eventDate.getMinutes() - timezoneOffset);
+
+            return {
+              title: event.title,
+              time: format(eventDate, "hh:mmaaa 'PST'"),
+              date: eventDate,
+            };
+          }
+        );
         setEvents(formattedEvents);
       }
     };
