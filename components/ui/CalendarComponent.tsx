@@ -60,7 +60,7 @@ const EventModal = () => {
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Test Suite</Label>
+            <Label className="font-bold">Test Suite</Label>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="w-full justify-between">
@@ -77,12 +77,12 @@ const EventModal = () => {
           </div>
 
           <div className="space-y-2 w-full p-2 border-2 border-gray-100 rounded-lg">
-            <Label>Start Date and Time</Label>
+            <Label className="font-bold">Start Date and Time</Label>
             <DateTimePicker setDate={setDate} />
 
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label>Run Weekly on Every</Label>
+                <Label className="font-bold">Run Weekly on Every</Label>
                 <Button variant="link" className="text-gray-500">
                   Custom Interval
                 </Button>
@@ -91,9 +91,11 @@ const EventModal = () => {
                 {weekDays.map((day) => (
                   <Button
                     key={day}
-                    variant={selectedDays.includes(day) ? "default" : "outline"}
+                    variant={"outline"}
                     className={`px-4 ${
-                      selectedDays.includes(day) ? "bg-[#0040FF]" : ""
+                      selectedDays.includes(day)
+                        ? "bg-[#0040FF] text-white"
+                        : ""
                     }`}
                     onClick={() => {
                       if (selectedDays.includes(day)) {
