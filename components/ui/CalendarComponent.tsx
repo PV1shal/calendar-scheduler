@@ -9,13 +9,122 @@ import {
   LayoutGrid,
   CalendarIcon,
   PlusIcon,
+  Clock3Icon,
+  ChevronDown,
 } from "lucide-react";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface Event {
   title: string;
   time: string;
   date: Date;
 }
+
+const EventModal = () => {
+  const [testSuite, setTestSuite] = useState("Demo Suite");
+  const [startDate, setStartDate] = useState("10/10/24 at 7:00 AM PST");
+  const [selectedDays, setSelectedDays] = useState<string[]>(["Mon"]);
+
+  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Sat"];
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="bg-[#0040FF] hover:bg-[#0040FF]/90">
+          <PlusIcon className="mr-2 h-4 w-4" />
+          Schedule Test
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Schedule Detail</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Test Suite</Label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  {testSuite}
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full">
+                <DropdownMenuItem onClick={() => setTestSuite("Demo Suite")}>
+                  Demo Suite
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Start Date and Time</Label>
+            <Input
+              type="text"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <Label>Run Weekly on Every</Label>
+              <Button variant="link" className="text-gray-500">
+                Custom Interval
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              {weekDays.map((day) => (
+                <Button
+                  key={day}
+                  variant={selectedDays.includes(day) ? "default" : "outline"}
+                  className={`px-4 ${
+                    selectedDays.includes(day) ? "bg-[#0040FF]" : ""
+                  }`}
+                  onClick={() => {
+                    if (selectedDays.includes(day)) {
+                      setSelectedDays(selectedDays.filter((d) => d !== day));
+                    } else {
+                      setSelectedDays([...selectedDays, day]);
+                    }
+                  }}
+                >
+                  {day}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter className="flex justify-between mt-6">
+          <Button variant="destructive" className="w-1/2 text-red-500 hover:text-white border-2 bg-transparent">
+            Cancel Schedule
+          </Button>
+          <Button className="w-1/2 bg-[#0040FF]">Save Changes</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 export default function CalendarComponent() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -60,10 +169,7 @@ export default function CalendarComponent() {
       <div className="mb-4">
         <h1 className="mb-4 text-2xl font-semibold">Scheduled Suites</h1>
         <div className="flex items-center gap-3">
-          <Button className="bg-[#0040FF] hover:bg-[#0040FF]/90">
-            <PlusIcon className="mr-2 h-4 w-4" />
-            Schedule Test
-          </Button>
+          <EventModal />
           <div className="flex items-center gap-2 rounded-md border bg-white p-1.5 shadow-sm">
             <Button
               variant="ghost"
@@ -132,7 +238,7 @@ export default function CalendarComponent() {
 
           {Array.from({ length: 7 }).map((_, dayIndex) => {
             const columnDate = addDays(startOfCurrentWeek, dayIndex);
-            
+
             return (
               <div key={dayIndex} className="relative last:border-r-0">
                 <div className="h-4 border-r" />
@@ -146,20 +252,24 @@ export default function CalendarComponent() {
                   if (shouldDisplayEvent(event.date, columnDate)) {
                     const eventHour = event.date.getHours();
                     const eventMinute = event.date.getMinutes();
-                    
+
                     return (
                       <div
                         key={eventIndex}
-                        className="absolute z-10 left-0 right-0 mx-1 rounded bg-blue-100 p-2 border border-blue-200"
+                        className="absolute z-10 left-0 right-0 mx-1 rounded bg-[#e5eafb] p-2 border-2 border-[#0435DD]"
                         style={{
-                          top: `${(eventHour * 80) + (eventMinute / 60) * 80 + 16}px`,
+                          top: `${
+                            eventHour * 80 + (eventMinute / 60) * 80 + 16
+                          }px`,
                           height: "75px",
                         }}
                       >
-                        <div className="text-sm font-medium text-blue-700">
+                        <div className="text-sm font-bold text-[#0435DD]">
                           {event.title}
                         </div>
-                        <div className="text-xs text-blue-600">{event.time}</div>
+                        <div className="flex text-xs text-[#0435DD]">
+                          <Clock3Icon size={16} className="mr-1" /> {event.time}
+                        </div>
                       </div>
                     );
                   }
