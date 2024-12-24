@@ -104,9 +104,9 @@ const EventModal = ({
     setIsLoading(true);
 
     const eventData = {
-      id: eventToEdit?.id,
+      id: eventToEdit?.id || "",
       title: testSuite,
-      time: date,
+      time: date ? date.toISOString() : "",
       selectedDays: selectedDays,
     };
 

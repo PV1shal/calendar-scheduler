@@ -38,8 +38,8 @@ export default function CalendarComponent() {
     const fetchEvents = async () => {
       const fetchedEvents = await getAllEvents();
       if (fetchedEvents) {
-        const formattedEvents = fetchedEvents.map(
-          (event: SupabaseEventData) => {
+        const formattedEvents = (fetchedEvents as SupabaseEventData[]).map(
+          (event) => {
             const eventDate = new Date(event.time);
             const timezoneOffset = eventDate.getTimezoneOffset();
             eventDate.setMinutes(eventDate.getMinutes() - timezoneOffset);

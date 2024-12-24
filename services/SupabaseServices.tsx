@@ -2,10 +2,21 @@ import { createClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
 
 const supabaseUrl = "https://oxkgqjyymfahoqoelmqn.supabase.co";
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export const getAllEvents = async () => {
+// Define types for event data
+interface Event {
+  title: string;
+  time: string; // ISO string format
+  selectedDays: string[]; // Days like ["Mon", "Tue"]
+}
+
+interface EventWithId extends Event {
+  id: string;
+}
+
+export const getAllEvents = async (): Promise<unknown[] | null> => {
   try {
     const { data, error } = await supabase
       .from("events")
@@ -25,7 +36,7 @@ export const getAllEvents = async () => {
   }
 };
 
-export const createEvent = async (event) => {
+export const createEvent = async (event: Event): Promise<unknown[] | null> => {
   const { title, time, selectedDays } = event;
   const groupId = uuidv4();
   const eventsToInsert = [];
@@ -46,10 +57,11 @@ export const createEvent = async (event) => {
   }
 
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("events")
       .insert(eventsToInsert)
       .select("id");
+
     if (error) throw error;
     return eventsToInsert;
   } catch (err) {
@@ -58,7 +70,7 @@ export const createEvent = async (event) => {
   }
 };
 
-const getNextOccurrence = (startDate, targetDay) => {
+const getNextOccurrence = (startDate: Date, targetDay: string): Date => {
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const currentDayIndex = startDate.getDay();
   const targetDayIndex = daysOfWeek.indexOf(targetDay);
@@ -76,8 +88,10 @@ const getNextOccurrence = (startDate, targetDay) => {
   return nextOccurrence;
 };
 
-export const updateEvent = async (event) => {
-  console.log("eventing: ", event);
+export const updateEvent = async (
+  event: EventWithId
+): Promise<unknown[] | null> => {
+  console.log("Updating event: ", event);
   const { id, title, time, selectedDays } = event;
 
   try {
@@ -119,15 +133,14 @@ export const updateEvent = async (event) => {
   }
 };
 
-export const deleteEvent = async (eventId) => {
+export const deleteEvent = async (eventId: string): Promise<boolean | null> => {
   try {
-    const { data: eventData, error: eventError } = await supabase
+    const { error } = await supabase
       .from("events")
       .delete()
-      .eq("id", eventId)
-      .single();
+      .eq("id", eventId);
 
-    if (eventError) throw eventError;
+    if (error) throw error;
 
     return true;
   } catch (err) {
