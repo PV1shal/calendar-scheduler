@@ -27,11 +27,12 @@ interface SupabaseEventData {
 }
 
 export default function CalendarComponent() {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const startOfCurrentWeek = startOfWeek(currentDate);
+  const [currentDate, setCurrentDate] = useState(new Date()); // hold current date
+  const startOfCurrentWeek = startOfWeek(currentDate);  // to track start of current week for top header bar
   const [events, setEvents] = useState<Event[]>([]);
-  const [open, setOpen] = useState(false); // Modal open state
+  const [open, setOpen] = useState(false); // Schedule Modal state
 
+  // Calling fetch on schedule modal close to get latest events.
   useEffect(() => {
     const fetchEvents = async () => {
       const fetchedEvents = await getAllEvents();
@@ -55,6 +56,7 @@ export default function CalendarComponent() {
     fetchEvents();
   }, [open, setOpen]);
 
+  // creates an array of 24 hrs in 12hr time format
   const hours = Array.from({ length: 24 }, (_, i) => i % 12 || 12);
 
   const navigateWeek = (direction: "prev" | "next") => {

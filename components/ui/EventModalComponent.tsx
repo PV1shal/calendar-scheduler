@@ -34,7 +34,7 @@ interface ModalOpen {
 }
 
 const EventModal = ({ open, setOpen }: ModalOpen) => {
-  const [testSuite, setTestSuite] = useState("Demo Suite");
+  const [testSuite, setTestSuite] = useState("Unit test suite");
   const [date, setDate] = useState<Date | null>(null); // Use null for optional date
   const [selectedDays, setSelectedDays] = useState<string[]>(["Mon"]);
   const [isLoading, setIsLoading] = useState(false); // Loading state
@@ -42,6 +42,16 @@ const EventModal = ({ open, setOpen }: ModalOpen) => {
   const [alertMessage, setAlertMessage] = useState("");
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const testSuiteList = [
+    "Unit test suite",
+    "Integration test suite",
+    "System test suite",
+    "Regression test suite,",
+    "Performance test suite",
+    "Usability test suite",
+    "Acceptance test suite",
+    "API test suite",
+  ];
 
   const handleSaveChange = async () => {
     if (!testSuite || !date || selectedDays.length === 0) {
@@ -87,7 +97,7 @@ const EventModal = ({ open, setOpen }: ModalOpen) => {
             Schedule Test
           </Button>
         </DialogTrigger>
-        <DialogContent className="w-1/2">
+        <DialogContent className="w-full">
           <DialogHeader>
             <DialogTitle>Schedule Detail</DialogTitle>
           </DialogHeader>
@@ -102,10 +112,17 @@ const EventModal = ({ open, setOpen }: ModalOpen) => {
                     <ChevronDown className="ml-2 h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-full">
-                  <DropdownMenuItem onClick={() => setTestSuite("Demo Suite")}>
-                    Demo Suite
-                  </DropdownMenuItem>
+                <DropdownMenuContent className="w-96">
+                  {testSuiteList.map((suite, index) => {
+                    return (
+                      <DropdownMenuItem
+                        key={index}
+                        onClick={() => setTestSuite(suite)}
+                      >
+                        {suite}
+                      </DropdownMenuItem>
+                    );
+                  })}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -127,11 +144,15 @@ const EventModal = ({ open, setOpen }: ModalOpen) => {
                       key={day}
                       variant={"outline"}
                       className={`px-4 ${
-                        selectedDays.includes(day) ? "bg-[#0040FF] text-white" : ""
+                        selectedDays.includes(day)
+                          ? "bg-[#0040FF] text-white"
+                          : ""
                       }`}
                       onClick={() => {
                         if (selectedDays.includes(day)) {
-                          setSelectedDays(selectedDays.filter((d) => d !== day));
+                          setSelectedDays(
+                            selectedDays.filter((d) => d !== day)
+                          );
                         } else {
                           setSelectedDays([...selectedDays, day]);
                         }
