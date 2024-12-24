@@ -52,7 +52,7 @@ export const createEvent = async (event) => {
       .insert(eventsToInsert)
       .select('id');
     if (error) throw error;
-    return data;
+    return eventsToInsert;
   } catch (err) {
     console.error('Error creating recurring events:', err);
     return null;
@@ -65,7 +65,6 @@ const getNextOccurrence = (startDate, targetDay) => {
   const targetDayIndex = daysOfWeek.indexOf(targetDay);
   let daysToAdd = targetDayIndex - currentDayIndex;
   
-  // If target day is before or same as current day, move to next week
   if (daysToAdd < 0) {
     daysToAdd += 7;
   }

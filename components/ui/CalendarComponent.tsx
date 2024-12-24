@@ -30,6 +30,7 @@ export default function CalendarComponent() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const startOfCurrentWeek = startOfWeek(currentDate);
   const [events, setEvents] = useState<Event[]>([]);
+  const [open, setOpen] = useState(false); // Modal open state
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -52,7 +53,7 @@ export default function CalendarComponent() {
       }
     };
     fetchEvents();
-  }, []);
+  }, [open, setOpen]);
 
   const hours = Array.from({ length: 24 }, (_, i) => i % 12 || 12);
 
@@ -76,7 +77,7 @@ export default function CalendarComponent() {
       <div className="mb-4">
         <h1 className="mb-4 text-2xl font-semibold">Scheduled Suites</h1>
         <div className="flex items-center gap-3">
-          <EventModal />
+          <EventModal open={open} setOpen={setOpen}/>
           <div className="flex items-center gap-2 rounded-md border bg-white p-1.5 shadow-sm">
             <Button
               variant="ghost"

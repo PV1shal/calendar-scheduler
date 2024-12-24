@@ -19,12 +19,11 @@ import { Label } from "@/components/ui/label";
 import DateTimePicker from "@/components/ui/DateTimePicker";
 import { createEvent } from "@/services/SupabaseServices";
 
-const EventModal = () => {
+const EventModal = ({ open, setOpen }) => {
   const [testSuite, setTestSuite] = useState("Demo Suite");
   const [date, setDate] = useState<Date | null>(null); // Use null for optional date
   const [selectedDays, setSelectedDays] = useState<string[]>(["Mon"]);
   const [isLoading, setIsLoading] = useState(false); // Loading state
-  const [open, setOpen] = useState(false); // Modal open state
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -43,9 +42,9 @@ const EventModal = () => {
     };
 
     try {
-      const groupId = await createEvent(eventData);
+      const events = await createEvent(eventData);
 
-      if (groupId) {
+      if (events) {
         alert("Event created successfully!");
         setOpen(false); // Close the modal on success
       } else {
