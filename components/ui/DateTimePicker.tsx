@@ -10,7 +10,7 @@ interface DateTimePickerProps {
 }
 
 export default function DateTimePicker({ setDate }: DateTimePickerProps) {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [hour, setHour] = useState<string>('00');
   const [minute, setMinute] = useState<string>('00');
   const [amPm, setAmPm] = useState<'AM' | 'PM'>('AM');

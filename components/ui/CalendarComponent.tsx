@@ -11,11 +11,19 @@ import {
   Clock3Icon,
 } from "lucide-react";
 import EventModal from "./EventModalComponent";
+import { getAllEvents } from "@/services/SupabaseServices";
 
 interface Event {
   title: string;
   time: string;
   date: Date;
+}
+
+interface SupabaseEventData {
+  id: string,
+  create_at: string,
+  time: string,
+  title: string
 }
 
 export default function CalendarComponent() {
@@ -24,19 +32,21 @@ export default function CalendarComponent() {
   const [events, setEvents] = useState<Event[]>([]);
 
   useEffect(() => {
-    const events: Event[] = [
-      {
-        title: "Demo Suite",
-        time: "11:00AM PST",
-        date: new Date(2024, 11, 15, 11, 0),
-      },
-      {
-        title: "Authentication",
-        time: "8:02AM PST",
-        date: new Date(2024, 11, 18, 8, 2),
-      },
-    ];
-    setEvents(events);
+    const fetchEvents = async () => {
+      const fetchedEvents = await getAllEvents();
+      if (fetchedEvents) {
+        const formattedEvents = fetchedEvents.map((event: SupabaseEventData) => {
+          const eventDate = new Date(event.time);
+          return {
+            title: event.title,
+            time: format(eventDate, "hh:mmaaa 'PST'"),
+            date: eventDate,
+          };
+        });
+        setEvents(formattedEvents);
+      }
+    };
+    fetchEvents();
   }, []);
 
   const hours = Array.from({ length: 24 }, (_, i) => i % 12 || 12);
