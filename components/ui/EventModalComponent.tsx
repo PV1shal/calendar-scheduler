@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import DateTimePicker from "@/components/ui/DateTimePicker";
 import { createEvent } from "@/services/SupabaseServices";
+import { format } from "date-fns";
 
 interface ModalOpen {
   open: boolean;
@@ -70,7 +71,10 @@ const EventModal = ({
     if (eventToEdit) {
       setTestSuite(eventToEdit.title);
       setDate(eventToEdit.date);
-      setSelectedDays(eventToEdit.selectedDays || ["Mon"]);
+      if (eventToEdit.date) {
+        const dayName = format(eventToEdit.date, 'EEE');
+        setSelectedDays([dayName]);
+      }
     } else {
       setTestSuite("Unit test suite");
       setDate(null);
