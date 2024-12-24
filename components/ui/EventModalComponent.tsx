@@ -42,6 +42,12 @@ interface ModalOpen {
   onModalClose: () => void;
 }
 
+interface Event {
+  title: string;
+  time: string;
+  date: Date;
+}
+
 const EventModal = ({
   open,
   setOpen,
