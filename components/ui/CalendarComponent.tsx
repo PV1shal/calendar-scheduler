@@ -29,8 +29,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import DateTimePicker from "@/components/ui/DateTimePicker";
 
 interface Event {
   title: string;
@@ -40,7 +40,7 @@ interface Event {
 
 const EventModal = () => {
   const [testSuite, setTestSuite] = useState("Demo Suite");
-  const [startDate, setStartDate] = useState("10/10/24 at 7:00 AM PST");
+  const [date, setDate] = useState<Date>();
   const [selectedDays, setSelectedDays] = useState<string[]>(["Mon"]);
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Sat"];
@@ -76,47 +76,45 @@ const EventModal = () => {
             </DropdownMenu>
           </div>
 
-          <div className="space-y-2">
-            <Label>Start Date and Time</Label>
-            <Input
-              type="text"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-          </div>
+          <div className="space-y-2 w-full">
+            <DateTimePicker date={date} setDate={setDate} />
 
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <Label>Run Weekly on Every</Label>
-              <Button variant="link" className="text-gray-500">
-                Custom Interval
-              </Button>
-            </div>
-            <div className="flex gap-2">
-              {weekDays.map((day) => (
-                <Button
-                  key={day}
-                  variant={selectedDays.includes(day) ? "default" : "outline"}
-                  className={`px-4 ${
-                    selectedDays.includes(day) ? "bg-[#0040FF]" : ""
-                  }`}
-                  onClick={() => {
-                    if (selectedDays.includes(day)) {
-                      setSelectedDays(selectedDays.filter((d) => d !== day));
-                    } else {
-                      setSelectedDays([...selectedDays, day]);
-                    }
-                  }}
-                >
-                  {day}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <Label>Run Weekly on Every</Label>
+                <Button variant="link" className="text-gray-500">
+                  Custom Interval
                 </Button>
-              ))}
+              </div>
+              <div className="flex gap-2">
+                {weekDays.map((day) => (
+                  <Button
+                    key={day}
+                    variant={selectedDays.includes(day) ? "default" : "outline"}
+                    className={`px-4 ${
+                      selectedDays.includes(day) ? "bg-[#0040FF]" : ""
+                    }`}
+                    onClick={() => {
+                      if (selectedDays.includes(day)) {
+                        setSelectedDays(selectedDays.filter((d) => d !== day));
+                      } else {
+                        setSelectedDays([...selectedDays, day]);
+                      }
+                    }}
+                  >
+                    {day}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
         <DialogFooter className="flex justify-between mt-6">
-          <Button variant="destructive" className="w-1/2 text-red-500 hover:text-white border-2 bg-transparent">
+          <Button
+            variant="destructive"
+            className="w-1/2 text-red-500 hover:text-white border-2 bg-transparent"
+          >
             Cancel Schedule
           </Button>
           <Button className="w-1/2 bg-[#0040FF]">Save Changes</Button>
