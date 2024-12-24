@@ -148,6 +148,7 @@ const EventModal = ({ open, setOpen }) => {
               variant="destructive"
               className="w-1/2 text-red-500 hover:text-white border-2 bg-transparent"
               disabled={isLoading}
+              onClick={() => setOpen(false)}
             >
               Cancel Schedule
             </Button>
