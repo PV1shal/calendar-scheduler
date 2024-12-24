@@ -33,3 +33,25 @@
     5. **deleteEvent**
         - Helps in updaing schedule test.
         - Can be improved to a batch delete in the future as DB is designed with that in mind.
+
+## Technologies used:
+1. NextJS - Frontend framework
+2. Supabase - Database
+3. shadcn - UI/UX components
+4. lucide - Icons & SVGs
+5. TailwindCSS - CSS and stuyling
+6. date-fns - Lightweight JS library for dates and calender operations
+7. UUID - for greating groupID for group schedule test update and delete
+
+## Database Architecture:
+![alt text](image.png)
+
+This is a simple architecture used ti track the event i.e. Shecdule tests. I will give a quick rundown of all the attributes:
+
+1. id: varchar - Primary key to uniquly identify a test schedule.
+2. created_at: TimeStamp - When the test schedule was created (for logging perpose and audit)
+3. title: varchar - title or suite of the scheduled task.
+4. time: TimeStamp - Time and Date of when the test is scheduled,
+5. group_id: Can be used to update and delte all the tasks that were scheduled together on different days i.e. when I create a task to run on Monday, Wednesday and Friday @ 10:00am and now I want them to run at 2:00pm afternoon I can simply use the group_id to reschedule all of them at one go!
+
+## Test the App at: [App-Link](https://calendar-scheduler-mauve.vercel.app/)
