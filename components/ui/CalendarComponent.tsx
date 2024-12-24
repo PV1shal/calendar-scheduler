@@ -64,10 +64,10 @@ export default function CalendarComponent() {
           </div>
         </div>
       </div>
-      
-      {/* Calender grid */}
-      <div className="rounded-lg border h-full overflow-scroll">
-        <div className="grid grid-cols-8 border-b">
+
+      {/* Calendar grid */}
+      <div className="rounded-lg m-8 border h-full overflow-auto">
+        <div className="grid grid-cols-8 border-b sticky top-0 z-10 bg-white">
           <div className="border-r p-2 text-center text-sm font-medium text-muted-foreground">
             PST
           </div>
