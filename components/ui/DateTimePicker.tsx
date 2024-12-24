@@ -10,7 +10,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 
 interface DateTimePickerProps {
-  date: Date;
+  date: Date | null;
   setDate: (date: Date) => void;
 }
 
