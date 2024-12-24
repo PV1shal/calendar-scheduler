@@ -1,4 +1,6 @@
-import { useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { PlusIcon, ChevronDown } from "lucide-react";
 import {
   Dialog,
@@ -31,13 +33,24 @@ import { createEvent } from "@/services/SupabaseServices";
 interface ModalOpen {
   open: boolean;
   setOpen: (open: boolean) => void;
+  eventToEdit: Event | null;
+  onModalClose: () => void;
 }
 
-const EventModal = ({ open, setOpen }: ModalOpen) => {
-  const [testSuite, setTestSuite] = useState("Unit test suite");
-  const [date, setDate] = useState<Date | null>(null); // Use null for optional date
-  const [selectedDays, setSelectedDays] = useState<string[]>(["Mon"]);
-  const [isLoading, setIsLoading] = useState(false); // Loading state
+const EventModal = ({
+  open,
+  setOpen,
+  eventToEdit,
+  onModalClose,
+}: ModalOpen) => {
+  const [testSuite, setTestSuite] = useState(
+    eventToEdit?.title || "Unit test suite"
+  );
+  const [date, setDate] = useState<Date | null>(eventToEdit?.date || null);
+  const [selectedDays, setSelectedDays] = useState<string[]>(
+    eventToEdit?.selectedDays || ["Mon"]
+  );
+  const [isLoading, setIsLoading] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
@@ -53,6 +66,18 @@ const EventModal = ({ open, setOpen }: ModalOpen) => {
     "API test suite",
   ];
 
+  useEffect(() => {
+    if (eventToEdit) {
+      setTestSuite(eventToEdit.title);
+      setDate(eventToEdit.date);
+      setSelectedDays(eventToEdit.selectedDays || ["Mon"]);
+    } else {
+      setTestSuite("Unit test suite");
+      setDate(null);
+      setSelectedDays(["Mon"]);
+    }
+  }, [eventToEdit, open]);
+
   const handleSaveChange = async () => {
     if (!testSuite || !date || selectedDays.length === 0) {
       setAlertMessage("Please fill in all the required fields.");
@@ -63,25 +88,54 @@ const EventModal = ({ open, setOpen }: ModalOpen) => {
     setIsLoading(true);
 
     const eventData = {
+      id: eventToEdit?.id,
       title: testSuite,
       time: date,
       selectedDays: selectedDays,
     };
 
     try {
-      const events = await createEvent(eventData);
+      const events = await (eventToEdit?.id
+        ? updateEvent(eventData)
+        : createEvent(eventData));
 
       if (events) {
-        setAlertMessage("Event created successfully!");
+        setAlertMessage(
+          eventToEdit
+            ? "Event updated successfully!"
+            : "Event created successfully!"
+        );
         setAlertOpen(true);
-        setOpen(false); // Close the modal on success
+        setOpen(false);
+        onModalClose();
       } else {
-        setAlertMessage("Failed to create event.");
+        setAlertMessage(
+          eventToEdit ? "Failed to update event." : "Failed to create event."
+        );
         setAlertOpen(true);
       }
     } catch (error) {
-      console.error("Error creating event:", error);
-      setAlertMessage("An error occurred while creating the event.");
+      console.error("Error saving event:", error);
+      setAlertMessage("An error occurred while saving the event.");
+      setAlertOpen(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!eventToEdit?.id) return;
+
+    setIsLoading(true);
+    try {
+      await deleteEvent(eventToEdit.id);
+      setAlertMessage("Event deleted successfully!");
+      setAlertOpen(true);
+      setOpen(false);
+      onModalClose();
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      setAlertMessage("An error occurred while deleting the event.");
       setAlertOpen(true);
     } finally {
       setIsLoading(false);
@@ -90,7 +144,13 @@ const EventModal = ({ open, setOpen }: ModalOpen) => {
 
   return (
     <>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={(newOpen) => {
+          setOpen(newOpen);
+          if (!newOpen) onModalClose();
+        }}
+      >
         <DialogTrigger asChild>
           <Button className="bg-[#0040FF] hover:bg-[#0040FF]/90">
             <PlusIcon className="mr-2 h-4 w-4" />
@@ -99,7 +159,9 @@ const EventModal = ({ open, setOpen }: ModalOpen) => {
         </DialogTrigger>
         <DialogContent className="w-full">
           <DialogHeader>
-            <DialogTitle>Schedule Detail</DialogTitle>
+            <DialogTitle>
+              {eventToEdit ? "Edit Schedule" : "Schedule Detail"}
+            </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -129,7 +191,7 @@ const EventModal = ({ open, setOpen }: ModalOpen) => {
 
             <div className="space-y-2 w-full p-2 border-2 border-gray-100 rounded-lg">
               <Label className="font-bold">Start Date and Time</Label>
-              <DateTimePicker setDate={setDate} />
+              <DateTimePicker date={date} setDate={setDate} />
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
@@ -168,26 +230,39 @@ const EventModal = ({ open, setOpen }: ModalOpen) => {
           </div>
 
           <DialogFooter className="flex justify-between mt-6">
-            <Button
-              variant="destructive"
-              className="w-1/2 text-red-500 hover:text-white border-2 bg-transparent"
-              disabled={isLoading}
-              onClick={() => setOpen(false)}
-            >
-              Cancel Schedule
-            </Button>
+            {eventToEdit ? (
+              <Button
+                variant="destructive"
+                className="w-1/2"
+                disabled={isLoading}
+                onClick={handleDelete}
+              >
+                Delete Schedule
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                className="w-1/2"
+                disabled={isLoading}
+                onClick={() => {
+                  setOpen(false);
+                  onModalClose();
+                }}
+              >
+                Cancel
+              </Button>
+            )}
             <Button
               className="w-1/2 bg-[#0040FF]"
               onClick={handleSaveChange}
               disabled={isLoading}
             >
-              {isLoading ? "Saving..." : "Save Changes"}
+              {isLoading ? "Saving..." : (eventToEdit ? "Update Changes" : "Save Changes")}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Shadcn Alert Dialog */}
       <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

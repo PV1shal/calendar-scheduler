@@ -10,11 +10,12 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 
 interface DateTimePickerProps {
+  date: Date;
   setDate: (date: Date) => void;
 }
 
-export default function DateTimePicker({ setDate }: DateTimePickerProps) {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date(date));
   const [hour, setHour] = useState<string>("00");
   const [minute, setMinute] = useState<string>("00");
   const [amPm, setAmPm] = useState<"AM" | "PM">("AM");

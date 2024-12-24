@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react";
 import { addDays, format, startOfWeek, isSameDay } from "date-fns";
@@ -28,9 +28,10 @@ interface SupabaseEventData {
 
 export default function CalendarComponent() {
   const [currentDate, setCurrentDate] = useState(new Date()); // hold current date
-  const startOfCurrentWeek = startOfWeek(currentDate);  // to track start of current week for top header bar
+  const startOfCurrentWeek = startOfWeek(currentDate); // to track start of current week for top header bar
   const [events, setEvents] = useState<Event[]>([]);
   const [open, setOpen] = useState(false); // Schedule Modal state
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   // Calling fetch on schedule modal close to get latest events.
   useEffect(() => {
@@ -44,6 +45,7 @@ export default function CalendarComponent() {
             eventDate.setMinutes(eventDate.getMinutes() - timezoneOffset);
 
             return {
+              id: event.id,
               title: event.title,
               time: format(eventDate, "hh:mmaaa 'PST'"),
               date: eventDate,
@@ -54,7 +56,12 @@ export default function CalendarComponent() {
       }
     };
     fetchEvents();
-  }, [open, setOpen]);
+  }, [open]);
+
+  const handleEventClick = (event: Event) => {
+    setSelectedEvent(event);
+    setOpen(true);
+  };
 
   // creates an array of 24 hrs in 12hr time format
   const hours = Array.from({ length: 24 }, (_, i) => i % 12 || 12);
@@ -79,7 +86,12 @@ export default function CalendarComponent() {
       <div className="mb-4">
         <h1 className="mb-4 text-2xl font-semibold">Scheduled Suites</h1>
         <div className="flex items-center gap-3">
-          <EventModal open={open} setOpen={setOpen}/>
+          <EventModal
+            open={open}
+            setOpen={setOpen}
+            eventToEdit={selectedEvent}
+            onModalClose={() => setSelectedEvent(null)}
+          />
           <div className="flex items-center gap-2 rounded-md border bg-white p-1.5 shadow-sm">
             <Button
               variant="ghost"
@@ -166,13 +178,14 @@ export default function CalendarComponent() {
                     return (
                       <div
                         key={eventIndex}
-                        className="absolute z-10 left-0 right-0 mx-1 rounded bg-[#e5eafb] p-2 border-2 border-[#0435DD]"
+                        className="absolute z-10 left-0 right-0 mx-1 rounded bg-[#e5eafb] p-2 border-2 border-[#0435DD] cursor-pointer hover:bg-[#d0dafc]"
                         style={{
                           top: `${
                             eventHour * 80 + (eventMinute / 60) * 80 + 16
                           }px`,
                           height: "75px",
                         }}
+                        onClick={() => handleEventClick(event)}
                       >
                         <div className="text-sm font-bold text-[#0435DD]">
                           {event.title}
