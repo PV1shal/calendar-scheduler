@@ -56,7 +56,7 @@ export default function CalendarComponent() {
       }
     };
     fetchEvents();
-  }, [open]);
+  }, [open, setOpen]);
 
   const handleEventClick = (event: Event) => {
     setSelectedEvent(event);

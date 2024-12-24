@@ -28,7 +28,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import DateTimePicker from "@/components/ui/DateTimePicker";
-import { createEvent } from "@/services/SupabaseServices";
+import {
+  createEvent,
+  updateEvent,
+  deleteEvent,
+} from "@/services/SupabaseServices";
 import { format } from "date-fns";
 
 interface ModalOpen {
@@ -72,7 +76,7 @@ const EventModal = ({
       setTestSuite(eventToEdit.title);
       setDate(eventToEdit.date);
       if (eventToEdit.date) {
-        const dayName = format(eventToEdit.date, 'EEE');
+        const dayName = format(eventToEdit.date, "EEE");
         setSelectedDays([dayName]);
       }
     } else {
@@ -103,6 +107,7 @@ const EventModal = ({
         ? updateEvent(eventData)
         : createEvent(eventData));
 
+      console.log("event", events);
       if (events) {
         setAlertMessage(
           eventToEdit
@@ -120,7 +125,7 @@ const EventModal = ({
       }
     } catch (error) {
       console.error("Error saving event:", error);
-      setAlertMessage("An error occurred while saving the event.");
+      setAlertMessage(`An error occurred while saving the event. ${error}`);
       setAlertOpen(true);
     } finally {
       setIsLoading(false);
@@ -261,7 +266,11 @@ const EventModal = ({
               onClick={handleSaveChange}
               disabled={isLoading}
             >
-              {isLoading ? "Saving..." : (eventToEdit ? "Update Changes" : "Save Changes")}
+              {isLoading
+                ? "Saving..."
+                : eventToEdit
+                ? "Update Changes"
+                : "Save Changes"}
             </Button>
           </DialogFooter>
         </DialogContent>

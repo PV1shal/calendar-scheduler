@@ -1,6 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
-import { addDays, setHours, setMinutes, isBefore, isSameDay } from 'date-fns';
 
 const supabaseUrl = "https://oxkgqjyymfahoqoelmqn.supabase.co";
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -30,12 +29,12 @@ export const createEvent = async (event) => {
   const { title, time, selectedDays } = event;
   const groupId = uuidv4();
   const eventsToInsert = [];
-  
+
   // Calculate events for 8 weeks (2 months)
   for (let week = 0; week < 8; week++) {
     const weekStartDate = new Date(time);
-    weekStartDate.setDate(weekStartDate.getDate() + (week * 7));
-    
+    weekStartDate.setDate(weekStartDate.getDate() + week * 7);
+
     for (const day of selectedDays) {
       const nextOccurrence = getNextOccurrence(weekStartDate, day);
       eventsToInsert.push({
@@ -48,31 +47,91 @@ export const createEvent = async (event) => {
 
   try {
     const { data, error } = await supabase
-      .from('events')
+      .from("events")
       .insert(eventsToInsert)
-      .select('id');
+      .select("id");
     if (error) throw error;
     return eventsToInsert;
   } catch (err) {
-    console.error('Error creating recurring events:', err);
+    console.error("Error creating recurring events:", err);
     return null;
   }
 };
 
 const getNextOccurrence = (startDate, targetDay) => {
-  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const currentDayIndex = startDate.getDay();
   const targetDayIndex = daysOfWeek.indexOf(targetDay);
   let daysToAdd = targetDayIndex - currentDayIndex;
-  
+
   if (daysToAdd < 0) {
     daysToAdd += 7;
   }
-  
+
   const nextOccurrence = new Date(startDate);
   nextOccurrence.setDate(startDate.getDate() + daysToAdd);
   nextOccurrence.setHours(startDate.getHours());
   nextOccurrence.setMinutes(startDate.getMinutes());
-  
+
   return nextOccurrence;
+};
+
+export const updateEvent = async (event) => {
+  console.log("eventing: ", event);
+  const { id, title, time, selectedDays } = event;
+
+  try {
+    const { data: eventData, error: eventError } = await supabase
+      .from("events")
+      .select("group_id, time")
+      .eq("id", id)
+      .single();
+
+    if (eventError) throw eventError;
+    if (!eventData?.group_id) {
+      console.error("No group_id found for event");
+      return null;
+    }
+
+    const nextOccurrence = getNextOccurrence(
+      new Date(eventData.time),
+      selectedDays[0]
+    );
+
+    nextOccurrence.setHours(new Date(time).getHours());
+    nextOccurrence.setMinutes(new Date(time).getMinutes());
+
+    const { data, error } = await supabase
+      .from("events")
+      .update({
+        title,
+        time: nextOccurrence.toISOString(),
+      })
+      .eq("id", id)
+      .select("id");
+
+    if (error) throw error;
+
+    return data;
+  } catch (err) {
+    console.error("Error updating event:", err);
+    return null;
+  }
+};
+
+export const deleteEvent = async (eventId) => {
+  try {
+    const { data: eventData, error: eventError } = await supabase
+      .from("events")
+      .delete()
+      .eq("id", eventId)
+      .single();
+
+    if (eventError) throw eventError;
+
+    return true;
+  } catch (err) {
+    console.error("Error deleting recurring events:", err);
+    return null;
+  }
 };
