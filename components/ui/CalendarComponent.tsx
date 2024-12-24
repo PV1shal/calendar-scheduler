@@ -8,10 +8,10 @@ import {
   ChevronRight,
   LayoutGrid,
   CalendarIcon,
-  Clock3Icon,
 } from "lucide-react";
 import EventModal from "./EventModalComponent";
 import { getAllEvents } from "@/services/SupabaseServices";
+import { DateCard, EventCard, HourCard } from "./CustomCards";
 
 interface Event {
   title: string;
@@ -72,10 +72,6 @@ export default function CalendarComponent() {
     );
   };
 
-  const formatTimeLabel = (hour: number, index: number) => {
-    if (index === 0) return "PST";
-    return `${hour.toString().padStart(2, "0")}:00 ${index < 12 ? "AM" : "PM"}`;
-  };
 
   const shouldDisplayEvent = (eventDate: Date, columnDate: Date) => {
     return isSameDay(eventDate, columnDate);
@@ -129,17 +125,7 @@ export default function CalendarComponent() {
           <div className="border-r border-transparent bg-white" />
           {Array.from({ length: 7 }).map((_, i) => {
             const date = addDays(startOfCurrentWeek, i);
-            return (
-              <div
-                key={i}
-                className="border border-gray-300 bg-gray-100 p-2 text-center"
-              >
-                <div className="text-sm font-medium">{format(date, "dd")}</div>
-                <div className="text-xs text-muted-foreground">
-                  {format(date, "EEE")}
-                </div>
-              </div>
-            );
+            return <DateCard key={i} date={date} />;
           })}
         </div>
 
@@ -147,14 +133,7 @@ export default function CalendarComponent() {
           <div className="border-r">
             <div className="h-4" />
             {hours.map((hour, i) => (
-              <div
-                key={`${hour}-${i < 12 ? "AM" : "PM"}`}
-                className="relative h-20 text-xs text-muted-foreground"
-              >
-                <span className="absolute -top-2.5 right-8">
-                  {formatTimeLabel(hour, i)}
-                </span>
-              </div>
+              <HourCard key={`${hour}-${i < 12 ? "AM" : "PM"}`} hour={hour} index={i} />
             ))}
           </div>
 
@@ -174,26 +153,18 @@ export default function CalendarComponent() {
                   if (shouldDisplayEvent(event.date, columnDate)) {
                     const eventHour = event.date.getHours();
                     const eventMinute = event.date.getMinutes();
+                    const style = {
+                      top: `${eventHour * 80 + (eventMinute / 60) * 80 + 16}px`,
+                      height: "75px",
+                    };
 
                     return (
-                      <div
+                      <EventCard
                         key={eventIndex}
-                        className="absolute z-10 left-0 right-0 mx-1 rounded bg-[#e5eafb] p-2 border-2 border-[#0435DD] cursor-pointer hover:bg-[#d0dafc]"
-                        style={{
-                          top: `${
-                            eventHour * 80 + (eventMinute / 60) * 80 + 16
-                          }px`,
-                          height: "75px",
-                        }}
+                        event={event}
                         onClick={() => handleEventClick(event)}
-                      >
-                        <div className="text-sm font-bold text-[#0435DD]">
-                          {event.title}
-                        </div>
-                        <div className="flex text-xs text-[#0435DD]">
-                          <Clock3Icon size={16} className="mr-1" /> {event.time}
-                        </div>
-                      </div>
+                        style={style}
+                      />
                     );
                   }
                   return null;
