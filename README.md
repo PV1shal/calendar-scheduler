@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Calendar Scheduler
 
-## Getting Started
+## Steps to setup
+1. cd into project
+2. Install packages using
 
-First, run the development server:
+    ```npm install```
+3. Start the server using
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+    ``` npm run dev ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## File Structre:
+- I wanted to develop the app in a component.modular like fashion which is why I've developed 3 major components:
+    1. **CalendarComponent.tsx**
+        - This will be the maincomponent that will hold the grid i.e. the calendar.
+    2. **EventModalComponent.tsx**
+        - This is a Modal made with the help of shadcn to create a new schedule.
+    3. **DateTimePicker.tsx**
+        - This is a custom date time picker made with the help of calender and input from shadcn. 
+        - The time picker is made in such a way that it works only in 12hr format and no wrong time can be entered.
+- I've also added a service folder that has the handler for everythign related to supabase such as adding new schedule and get all schedules. It can be found in 
+    ```/services/SupabaseServices.tsx```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+    1. **getAllEvents**
+        - Helps is getting all the event from supabase.
+    2. **createEvent**
+        - Helps in scheduling a new test.
+    3. **getNextOccurrence**
+        - A help function that helps in calculating the dates of the upcoming 'day'.
+    4. **updateEvent**
+        - Helps in updaing schedule test.
+        - Can be improved to a batch update in the future as DB is designed with that in mind.
+    5. **deleteEvent**
+        - Helps in updaing schedule test.
+        - Can be improved to a batch delete in the future as DB is designed with that in mind.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Technologies used:
+1. NextJS - Frontend framework
+2. Supabase - Database
+3. shadcn - UI/UX components
+4. lucide - Icons & SVGs
+5. TailwindCSS - CSS and stuyling
+6. date-fns - Lightweight JS library for dates and calender operations
+7. UUID - for greating groupID for group schedule test update and delete
 
-## Learn More
+## Database Architecture:
+![alt text](image.png)
 
-To learn more about Next.js, take a look at the following resources:
+This is a simple architecture used ti track the event i.e. Shecdule tests. I will give a quick rundown of all the attributes:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. id: varchar - Primary key to uniquly identify a test schedule.
+2. created_at: TimeStamp - When the test schedule was created (for logging perpose and audit)
+3. title: varchar - title or suite of the scheduled task.
+4. time: TimeStamp - Time and Date of when the test is scheduled,
+5. group_id: Can be used to update and delte all the tasks that were scheduled together on different days i.e. when I create a task to run on Monday, Wednesday and Friday @ 10:00am and now I want them to run at 2:00pm afternoon I can simply use the group_id to reschedule all of them at one go!
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Test the App at: [App-Link](https://calendar-scheduler-mauve.vercel.app/)
