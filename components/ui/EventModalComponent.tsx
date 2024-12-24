@@ -19,18 +19,21 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import DateTimePicker from "@/components/ui/DateTimePicker";
 import { createEvent } from "@/services/SupabaseServices";
 
-const EventModal = ({ open, setOpen }) => {
+interface ModalOpen {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}
+
+const EventModal = ({ open, setOpen }: ModalOpen) => {
   const [testSuite, setTestSuite] = useState("Demo Suite");
   const [date, setDate] = useState<Date | null>(null); // Use null for optional date
   const [selectedDays, setSelectedDays] = useState<string[]>(["Mon"]);
